@@ -40,6 +40,8 @@ services:
       - static:/static/
       - media:/media/
       - certs:/etc/letsencrypt
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:
