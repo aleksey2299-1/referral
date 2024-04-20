@@ -1,0 +1,14 @@
+[tool.black]
+line-length = 79
+target-version = ['py312']
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "ambassadors_project.settings"
+norecursedirs = "env/* venv/*"
+addopts = [
+    "-vv",
+    "-p",
+    "no:cacheprovider",
+]
+testpaths = "tests/"
+python_files = "test_*.py"
