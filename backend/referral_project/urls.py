@@ -7,8 +7,8 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from users.views import RetriveUser, user_login
 
 v1_urlpatterns = [
-    path("profile", RetriveUser.as_view()),
-    path("login", user_login, name="login"),
+    path("profile/", RetriveUser.as_view()),
+    path("login/", user_login, name="login"),
 ]
 
 api_urlpatterns = [

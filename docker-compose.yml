@@ -30,6 +30,13 @@ services:
       db:
         condition: service_healthy
 
+  frontend:
+    env_file: .env
+    build: ./frontend/
+    command: cp -r /app/dist/. /frontend_static/
+    volumes:
+      - static:/frontend_static
+
   nginx:
     build: ./nginx/
     env_file: .env

@@ -1,6 +1,7 @@
 import datetime as dt
 
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
@@ -26,8 +27,8 @@ from users.utils import generate_confirmation_code
 
 def create_confirmation_code(user: User) -> int:
     """Создание кода подтверждения."""
-    code = generate_confirmation_code
-    user.code_request_date = dt.datetime.now()
+    code = generate_confirmation_code()
+    user.code_request_date = timezone.now()
     user.confirmation_code = code
     user.save()
     return code
@@ -37,10 +38,13 @@ def check_confirmation_code(user: User, code: int) -> Response | None:
     """Проверка кода подтверждения."""
     if user.code_request_date < timezone.now() - dt.timedelta(minutes=5):
         raise ValidationError(
-            "Confirmation code expired.", status.HTTP_400_BAD_REQUEST
+            _("Срок действия кода подтверждения истёк."),
+            status.HTTP_400_BAD_REQUEST,
         )
     if user.confirmation_code != code:
-        raise ValidationError("Invalid data.", status.HTTP_400_BAD_REQUEST)
+        raise ValidationError(
+            _("Неправильные данные."), status.HTTP_400_BAD_REQUEST
+        )
 
 
 @extend_schema(
@@ -55,12 +59,16 @@ def check_confirmation_code(user: User, code: int) -> Response | None:
 def user_login(request: Request) -> Response:
     """View для авторизации."""
     data = request.data
-    user, _ = User.objects.get_or_create(phone=data["phone"])
+    user = User.objects.filter(phone=data.get("phone")).first()
+    if not user:
+        serializer = UserLoginSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
     if data.get("send_code") is True:
         code = create_confirmation_code(user)
         return Response(
             {
-                "detail": "To login write your confirmation code.",
+                "detail": _("Чтобы войти введите код подтверждения."),
                 "confirmation_code": code,
             },
             status.HTTP_200_OK,
@@ -83,13 +91,13 @@ class RetriveUser(APIView):
     http_method_names = ("get", "patch")
 
     def get(self, request: Request) -> Response:
-        """Return user profile."""
+        """Возвращает профиль пользователя."""
         user = request.user
         serializer = UserSerializer(user)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request: Request) -> Response:
-        """Update referral_by field."""
+        """Изменяет информацию о пользователе."""
         user = request.user
         data = request.data
         serializer = UserSerializer(user, data)

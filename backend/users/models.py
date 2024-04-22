@@ -7,6 +7,8 @@ from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+from phonenumber_field.modelfields import PhoneNumberField
 
 from users.manager import MyUserManager
 from users.utils import generate_confirmation_code
@@ -20,7 +22,10 @@ def generate_unique_referral_code() -> str:
         # Генерируем случайную строку заданной длины
         random_string = "".join(random.choice(characters) for _ in range(6))
         # Проверяем, уникальна ли строка
-        if not User.objects.filter(referral_code=random_string).exists():
+        if (
+            not User.objects.filter(referral_code=random_string).exists()
+            and random_string != "FIRST1"
+        ):
             return random_string
 
 
@@ -29,30 +34,30 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = "phone"
 
-    phone = models.CharField(
-        verbose_name="Номер телефона",
+    phone = PhoneNumberField(
+        verbose_name=_("Номер телефона"),
         max_length=20,
         blank=False,
         unique=True,
     )
     is_staff = models.BooleanField(
-        "Является модератором",
+        _("Является модератором"),
         default=False,
     )
     is_superuser = models.BooleanField(
-        "Является админом",
+        _("Является админом"),
         default=False,
     )
     confirmation_code = models.IntegerField(
-        "Код подтверждения",
+        _("Код подтверждения"),
         default=generate_confirmation_code,
     )
     code_request_date = models.DateTimeField(
-        "Дата запроса кода подтверждения",
+        _("Дата запроса кода подтверждения"),
         default=timezone.now,
     )
     referral_code = models.CharField(
-        "Реферральный код",
+        _("Реферральный код"),
         max_length=6,
         unique=True,
         default="FIRST1",
@@ -63,7 +68,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         to_field="referral_code",
         db_column="referral_by",
         related_name="referrals",
-        verbose_name="Введенный реферальный код",
+        verbose_name=_("Использован реферальный код пользователя"),
         blank=True,
         null=True,
     )
@@ -72,11 +77,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         ordering = ("id",)
-        verbose_name = "Пользователь"
-        verbose_name_plural = "Пользователи"
+        verbose_name = _("Пользователь")
+        verbose_name_plural = _("Пользователи")
 
     def __str__(self) -> str:
-        return self.phone
+        return f"{self.phone}"
 
 
 @receiver(pre_save, sender=User)

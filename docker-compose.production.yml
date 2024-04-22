@@ -27,6 +27,13 @@ services:
       db:
         condition: service_healthy
 
+  frontend:
+    env_file: .env
+    image: aleksey2299/referrals_frontend:latest
+    command: cp -r /app/dist/. /frontend_static/
+    volumes:
+      - static:/frontend_static
+
   nginx:
     image: aleksey2299/referrals_nginx:latest
     env_file: .env
