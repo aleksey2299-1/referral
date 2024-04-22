@@ -1,4 +1,5 @@
 import datetime as dt
+import time
 
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -27,6 +28,9 @@ from users.utils import generate_confirmation_code
 
 def create_confirmation_code(user: User) -> int:
     """Создание кода подтверждения."""
+    # Имитация задержки
+    time.sleep(2)
+
     code = generate_confirmation_code()
     user.code_request_date = timezone.now()
     user.confirmation_code = code
@@ -50,7 +54,15 @@ def check_confirmation_code(user: User, code: int) -> Response | None:
 @extend_schema(
     request=UserLoginSerializer(),
     responses={
-        200: inline_serializer("token", {"token": serializers.CharField()})
+        200: inline_serializer(
+            "LoginResponse",
+            {
+                "token": serializers.CharField(required=False),
+                "confirmation_code": serializers.IntegerField(
+                    required=False, min_value=1000, max_value=9999
+                ),
+            },
+        ),
     },
 )
 @api_view(("POST",))
@@ -68,7 +80,6 @@ def user_login(request: Request) -> Response:
         code = create_confirmation_code(user)
         return Response(
             {
-                "detail": _("Чтобы войти введите код подтверждения."),
                 "confirmation_code": code,
             },
             status.HTTP_200_OK,
@@ -88,19 +99,25 @@ class RetriveUser(APIView):
     """View для профиля пользователя."""
 
     permission_classes = (permissions.IsAuthenticated,)
-    http_method_names = ("get", "patch")
+    http_method_names = ("get", "patch", "delete")
 
     def get(self, request: Request) -> Response:
-        """Возвращает профиль пользователя."""
+        """Получение профиля пользователя."""
         user = request.user
         serializer = UserSerializer(user)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request: Request) -> Response:
-        """Изменяет информацию о пользователе."""
+        """Изменение информации о пользователе."""
         user = request.user
         data = request.data
         serializer = UserSerializer(user, data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request: Request) -> Response:
+        """Удаление пользователя."""
+        user: User = request.user
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

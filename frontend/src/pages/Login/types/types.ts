@@ -1,5 +1,4 @@
 type TRequest = {
-  detail?: string;
   confirmation_code?: number;
   token?: string;
 };
