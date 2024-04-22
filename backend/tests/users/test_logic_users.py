@@ -58,8 +58,6 @@ def test_invalid_phone_login(client: APIClient):
 @pytest.mark.django_db
 @pytest.mark.parametrize("get_token", [1], indirect=True)
 def test_use_refferal_code(client: APIClient, create_users, get_token):
-    client.force_login(User.objects.get(id=1))
-
     url = "/api/v1/profile/"
     referral_code = User.objects.get(id=2).referral_code
 
@@ -78,8 +76,6 @@ def test_use_refferal_code(client: APIClient, create_users, get_token):
 @pytest.mark.django_db
 @pytest.mark.parametrize("get_token", [1], indirect=True)
 def test_use_invalid_refferal_code(client: APIClient, create_users, get_token):
-    client.force_login(User.objects.get(id=1))
-
     url = "/api/v1/profile/"
     referral_code = User.objects.get(id=1).referral_code
 
