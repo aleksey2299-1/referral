@@ -9,7 +9,7 @@ import { BASE_URL } from '../constants/env_constants';
 export const fetchUser = createAsyncThunk('profile/fetchUser', async (_, { rejectWithValue }) => {
   const token = new Cookies().get('token');
   try {
-    const { data } = await axios.get<TUser>(`${BASE_URL}/api/v1/profile`, {
+    const { data } = await axios.get<TUser>(`${BASE_URL}/api/v1/profile/`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return data;
@@ -23,7 +23,7 @@ export const patchUser = createAsyncThunk(
   async (patchData: { used_referral_code: string }, { rejectWithValue }) => {
     const token = new Cookies().get('token');
     try {
-      const { data } = await axios.patch<TUser>(`${BASE_URL}/api/v1/profile`, patchData, {
+      const { data } = await axios.patch<TUser>(`${BASE_URL}/api/v1/profile/`, patchData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return data;

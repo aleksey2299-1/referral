@@ -9,7 +9,7 @@ export const requestCode = createAsyncThunk(
   'login/requestCode',
   async (postData: TLoginData, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post<TRequest>(`${BASE_URL}/api/v1/login`, postData);
+      const { data } = await axios.post<TRequest>(`${BASE_URL}/api/v1/login/`, postData);
       return data;
     } catch (e: any) {
       return rejectWithValue(e.message);
