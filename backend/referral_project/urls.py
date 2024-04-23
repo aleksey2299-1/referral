@@ -2,7 +2,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
 
 from users.views import RetriveUser, user_login
 
@@ -15,7 +19,14 @@ api_urlpatterns = [
     path("v1/", include(v1_urlpatterns)),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
-        "docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="docs"
+        "docs/redoc/",
+        SpectacularRedocView.as_view(url_name="schema"),
+        name="redoc",
+    ),
+    path(
+        "docs/swagger/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger",
     ),
 ]
 

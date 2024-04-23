@@ -9,6 +9,7 @@
 3. [Функционал](#functional)
 4. [Установка зависимостей](#installation)
 5. [Запуск](#start)
+6. [Дополнительно](#extra)
 
 ## О проекте <a id="about"></a>
 
@@ -40,7 +41,7 @@
 
 Реализована простая реферальная система и имитация получения 4-х значного кода подтверждения при входе.
 
-Репозиторий включает в себя два файла **docker-compose.yml** и 
+Репозиторий включает в себя два файла **docker-compose.yml** и
 **docker-compose.production.yml**, что позволяет развернуть проект на
 локальном или удалённом серверах.
 
@@ -64,7 +65,8 @@ nano .env
 ```
 
 Добавьте следующие строки и подставьте свои значения:
-````dotenv
+
+```dotenv
 # postgres
 POSTGRES_DB=DB                           # название db
 POSTGRES_USER=USER                       # имя пользователя для db
@@ -81,7 +83,7 @@ ALLOWED_HOSTS=127.0.0.1 backend          # ваши адреса через пр
 GET_CERTS=False                          # True для получения сертификатов (обязательно укажите email в CERTBOT_EMAIL)
 CERTBOT_EMAIL=example@example.com        # Email для регистрации certbot
 DOMAIN=exemple.com                       # Домен на котором вы разворачиваете
-````
+```
 
 4. [Установить docker](https://www.docker.com/get-started/)
 
@@ -117,28 +119,45 @@ sudo docker compose -f docker-compose.production.yml up
 
 Пароль: `admin`
 
-
 После запуска проект можно будет посмотреть по [ссылке](http://localhost:8000/).
 
 Посмотреть документацию:
-[Redoc](http://localhost:8000/api/docs/)
+
+[Redoc](http://localhost:8000/api/docs/redoc/)
+
+[Swagger](http://localhost:8000/api/docs/swagger/)
 
 ### Если вы хотите иметь возможность поменять код:
 
 Склонируйте репозиторий:
-````bash
+
+```bash
 git clone git@github.com:aleksey2299-1/referral.git
-````
+```
 
 Перейдите в папку forms и запустите файл **docker-compose.yml**:
-````bash
+
+```bash
 cd referral
 docker compose up
-````
+```
 
 > **Примечание.** Любые изменения в коде при сохранении будут немедленно отображаться при запросах к серверу
-***
 
+---
+
+## Дополнительно <a id="extra"></a>
+
+Для проверки работоспособности имеют pytest'ы и postman коллекция.
+
+1. Запустить pytest'ы можно командой:
+
+```bash
+sudo docker compose exec backend pytest
+```
+
+2. Postman коллекция находится в папке postman_collection.
+
+Ее нужно импортировать в postman и указать переменную коллекции base_url (при обращении к локальному серверу это http://localhost:8000)
 
 [Оглавление](#contents)
-
